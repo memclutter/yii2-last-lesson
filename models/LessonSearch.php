@@ -6,6 +6,7 @@ use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\Lesson;
+use yii\db\Expression;
 
 /**
  * LessonSearch represents the model behind the search form about `app\models\Lesson`.
@@ -13,13 +14,17 @@ use app\models\Lesson;
 class LessonSearch extends Lesson
 {
     /**
+     * @var string search text
+     */
+    public $search;
+
+    /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['id', 'group_id'], 'integer'],
-            [['name', 'lesson_time'], 'safe'],
+            [['search'], 'string'],
         ];
     }
 
@@ -47,6 +52,18 @@ class LessonSearch extends Lesson
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'sort' => [
+                'defaultOrder' => [
+                    'lesson_time' => SORT_ASC,
+                ],
+                'attributes' => [
+                    'lesson_time' => [
+                        'asc' => [new Expression('(case when lesson_time is not null then 0 else 1 end), lesson_time')],
+                        'desc' => [new Expression('(case when lesson_time is not null then 0 else 1 end), lesson_time DESC')],
+                        'default' => SORT_ASC,
+                    ],
+                ]
+            ],
         ]);
 
         $this->load($params);
@@ -57,14 +74,20 @@ class LessonSearch extends Lesson
             return $dataProvider;
         }
 
-        // grid filtering conditions
-        $query->andFilterWhere([
-            'id' => $this->id,
-            'lesson_time' => $this->lesson_time,
-            'group_id' => $this->group_id,
-        ]);
+        // only current week lessons
+        $query->andWhere(new Expression('yearweek(lesson_time, 1) = yearweek(curdate(), 1)'))
+            ->andWhere(new Expression('lesson_time >= curdate()'));
 
-        $query->andFilterWhere(['like', 'name', $this->name]);
+        if (!empty($this->search)) {
+            $query->joinWith('group')
+                ->joinWith('group.teacher')
+                ->andFilterWhere([
+                    'or',
+                    ['like', 'group.name', $this->search],
+                    ['like', 'teacher.first_name', $this->search],
+                    ['like', 'teacher.last_name', $this->search],
+                ]);
+        }
 
         return $dataProvider;
     }

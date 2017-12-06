@@ -15,13 +15,7 @@ use yii\widgets\ActiveForm;
         'method' => 'get',
     ]); ?>
 
-    <?= $form->field($model, 'id') ?>
-
-    <?= $form->field($model, 'name') ?>
-
-    <?= $form->field($model, 'lesson_time') ?>
-
-    <?= $form->field($model, 'group_id') ?>
+    <?= $form->field($model, 'search') ?>
 
     <div class="form-group">
         <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
