@@ -64,4 +64,14 @@ class Group extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Lesson::className(), ['group_id' => 'id']);
     }
+
+    /**
+     * Return group name
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }

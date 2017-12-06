@@ -53,4 +53,17 @@ class Teacher extends \yii\db\ActiveRecord
     {
         return $this->hasMany(Group::className(), ['teacher_id' => 'id']);
     }
+
+    /**
+     * Return teacher full name
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return implode(' ', [
+            $this->first_name,
+            $this->last_name
+        ]);
+    }
 }

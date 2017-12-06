@@ -58,4 +58,14 @@ class Lesson extends \yii\db\ActiveRecord
     {
         return $this->hasOne(Group::className(), ['id' => 'group_id']);
     }
+
+    /**
+     * Return lesson name
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->name;
+    }
 }
